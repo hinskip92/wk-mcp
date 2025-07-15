@@ -1,0 +1,27 @@
+# Render Blueprint
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: wild-kratts-mcp-server
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.4"
+      - key: ENVIRONMENT
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    healthCheckPath: /health
+    
+  # Optional: Add PostgreSQL database
+  # - type: database
+  #   name: wild-kratts-db
+  #   databaseName: wild_kratts
+  #   user: admin
+  #   plan: free

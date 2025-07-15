@@ -1,0 +1,26 @@
+{
+  "functions": {
+    "api/mcp.py": {
+      "runtime": "python3.12"
+    }
+  },
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "/api/health.py"
+    },
+    {
+      "src": "/mcp",
+      "dest": "/api/mcp.py"
+    }
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.12.4",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "build": {
+    "env": {
+      "PYTHONPATH": "."
+    }
+  }
+}

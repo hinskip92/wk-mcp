@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  wild-kratts-mcp-server:
+    build: .
+    container_name: wild-kratts-mcp-server
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    # MCP servers typically use stdio, but can expose ports for health checks
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

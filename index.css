@@ -1,0 +1,910 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  display: flex;
+  font-family: 'Nunito', 'Google Sans Text', 'Google Sans', sans-serif; /* Wild Kratts theme font */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+
+  /* Wild Kratts Theme Colors */
+  --wk-green-light: #78c850; /* Chris's Green */
+  --wk-green-dark: #4CAF50;
+  --wk-blue-light: #6890f0;  /* Martin's Blue */
+  --wk-blue-dark: #3B82F6;
+  --wk-orange-accent: #f08030; /* Creature Power Disc Orange */
+  --wk-yellow-accent: #f8d030; /* Accent Yellow */
+  --wk-brown-bg: #d2b48c;     /* Earthy Tan */
+  --wk-grey-light: #f5f5f5;
+  --wk-grey-dark: #3a3f47;   /* Darker grey for text/elements in dark mode */
+  --wk-text-dark: #2c3e50;  /* Darker text for light backgrounds */
+  --wk-text-light: #ecf0f1; /* Lighter text for dark backgrounds */
+
+  --color-bg: light-dark(var(--wk-grey-light), #1e2227); /* Lighter dark bg */
+  --color-text: light-dark(var(--wk-text-dark), var(--wk-text-light));
+
+  --color-inv-bg: light-dark(var(--wk-text-dark), var(--wk-grey-light));
+  --color-inv-text: light-dark(var(--wk-grey-light), var(--wk-text-dark));
+  --color-inv-bg2: light-dark(#4a5568, #a0aec0); /* Adjusted for theme */
+  --color-inv-text2: light-dark(#a0aec0, #4a5568);
+
+  --color-accent: light-dark(var(--wk-green-dark), var(--wk-green-light));
+  --color-accent2: light-dark(var(--wk-blue-dark), var(--wk-blue-light));
+  --color-accent-disabled: light-dark(#a0aec0, #4a5568);
+  --color-accent-text: light-dark(#fff, #1a202c); /* Ensure contrast for accent text */
+  --color-sidebar-border: light-dark(#d1d5db, #4b5563); /* Themed border */
+
+  --color-bg2: light-dark(#ffffff, #2a2f37); /* Card/input backgrounds */
+  --color-text2: light-dark(var(--wk-text-dark), #d1d5db);
+  --color-bg3: light-dark(#e5e7eb, #343a43); /* Thinking bubble */
+  --color-text3: light-dark(#4b5563, #9ca3af);
+
+  --color-error-bg: light-dark(#fee2e2, #5f2229);
+  --color-error-text: light-dark(#ef4444, #fca5a5);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: light-dark(var(--wk-green-light), var(--wk-blue-light));
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-weight: 400; /* Default font weight for Nunito */
+
+  --code-bg: light-dark(#e2e8f0, #2d3748);
+  --code-text: light-dark(#2d3748, #e2e8f0);
+
+  --code-editor-bg: var(--color-bg2);
+  --code-editor-text: var(--color-text2);
+}
+
+textarea {
+  border: none;
+  overflow: auto;
+  outline: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  resize: none;
+  font-family: inherit;
+}
+
+.hidden {
+  display: none!important;
+}
+
+#editor textarea {
+  font: monospace;
+}
+
+#root,
+.playground {
+  height: 100vh;
+  overflow: hidden;
+  position: relative; /* For positioning the chat toggle button */
+}
+
+.playground {
+  display: flex; /* Keep flex for main-container to take remaining space */
+  flex-direction: row;
+  flex: 1;
+  border-top: 1px solid var(--color-sidebar-border);
+}
+
+.chat-panel-hover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 350px;
+  max-width: 90vw; /* Ensure it doesn't take too much space on small viewports */
+  background-color: light-dark(#e8f5e9, #2c3a47); /* Light green/blue tint */
+  border-left: 1px solid var(--color-sidebar-border);
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.chat-panel-hover.visible {
+  transform: translateX(0);
+}
+
+
+.selector {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0; /* Prevent shrinking */
+  padding: 0 1em;
+  border-bottom: 1px solid var(--color-sidebar-border);
+}
+
+.selector button {
+  display: flex;
+  gap: 5px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  border-bottom: 4px solid transparent;
+  background: transparent;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  font-weight: 600; /* Bolder for theme */
+  text-transform: uppercase; /* Thematic touch */
+  letter-spacing: 0.5px;
+}
+
+.selector button:hover {
+  background-color: light-dark(var(--wk-green-light), var(--wk-blue-light));
+  color: var(--color-accent-text);
+}
+
+.selected-tab, .selector button.active {
+  background: transparent;
+  border-bottom: 4px solid var(--wk-orange-accent) !important;
+  color: var(--wk-orange-accent);
+}
+
+.tabcontent {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.showtab {
+  display: flex!important;
+}
+
+#chat { /* Used inside chat-panel-hover */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto; 
+  background-color: var(--color-bg); 
+  padding: 20px; 
+  /* Adjust width if chat panel is visible and you want main content to shift */
+  /* transition: margin-right 0.3s ease-in-out; */
+  /* This would require JS to add a class to main-container or playground */
+}
+
+/* If chat panel is visible and you want main content to not be overlapped */
+/* .playground.chat-visible .main-container {
+  margin-right: 350px; 
+} */
+
+
+main { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto; 
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  padding: 12px; 
+  scroll-behavior: smooth;
+  * { overflow-anchor: none; }
+}
+
+#chatStatus {
+  background: var(--color-bg2);
+  padding: 0.5em 1em; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-weight: 600; 
+  color: var(--color-text2);
+  border-top: 1px solid var(--color-sidebar-border);
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+#chatStatus svg {
+  margin-right: 10px;
+  fill: var(--wk-orange-accent); /* Themed busy icon */
+}
+
+@-webkit-keyframes rotating {
+  from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+}
+@keyframes rotating {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.rotating {
+  -webkit-animation: rotating 1s linear infinite;
+  animation: rotating 1s linear infinite;
+}
+
+
+#inputArea {
+  display: flex;
+  align-items: center; 
+  padding: 12px; 
+  border-top: 1px solid var(--color-sidebar-border);
+  background-color: light-dark(#e8f5e9, #2c3a47); /* Matches chat panel bg */
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+#messageInput {
+  flex-grow: 1;
+  padding: 12px 16px; 
+  border: 2px solid var(--color-sidebar-border); /* Slightly thicker border */
+  border-radius: 24px; 
+  margin-right: 10px;
+  font-size: 1em;
+  background: var(--color-bg2);
+  color: var(--color-text2);
+  line-height: 1.5; 
+}
+
+#messageInput:focus{
+  outline: none;
+  border-color: var(--wk-orange-accent);
+  box-shadow: 0 0 0 2px var(--wk-yellow-accent); /* Focus glow */
+}
+
+#sendButton {
+  padding: 0; 
+  width: 48px;  
+  height: 48px; 
+  background-color: var(--wk-green-dark); /* Themed send button */
+  color: #fff;
+  border: none;
+  border-radius: 50%; 
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Prevent shrinking */
+}
+#sendButton:hover {
+  background-color: var(--wk-green-light);
+  transform: scale(1.05);
+}
+#sendButton:active {
+  transform: scale(0.95);
+}
+
+#sendButton.disabled {
+  background-color: var(--color-accent-disabled);
+  color: var(--color-text); 
+  cursor: not-allowed;
+  transform: scale(1);
+  box-shadow: none;
+}
+#sendButton.disabled svg {
+  fill: var(--color-text);
+}
+
+
+#anchor {
+  overflow-anchor: auto;
+  height: 1px;
+}
+
+
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 18px; /* Slightly more padding */
+  border-radius: 20px; /* More rounded turns */
+  max-width: 90%; 
+  word-wrap: break-word;
+  line-height: 1.6; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+  details.thinking { 
+    background: var(--color-bg3);
+    color: var(--color-text3);
+    border-radius: 10px;
+    padding: 0.75em 1em; /* More padding */
+    margin-top: 8px; /* More space */
+    border: 1px solid var(--color-sidebar-border);
+  }
+  details.thinking summary { 
+    cursor: pointer;
+    font-weight: 600; /* Bolder summary */
+  }
+  details.thinking div { 
+    padding-top: 0.75em;
+  }
+}
+
+
+.role-user {
+    background-color: var(--wk-blue-dark); /* Martin's blue for user */
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 6px; /* Adjusted radius */
+}
+.role-user details.thinking { display: none; }
+
+
+.role-assistant {
+    background-color: var(--color-bg2);
+    color: var(--color-text2);
+    align-self: flex-start;
+    border-bottom-left-radius: 6px;
+}
+
+.role-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+  padding: 12px 18px;
+  font-weight: 600;
+}
+.role-error details.thinking { display: none; }
+
+
+.turn > .text > p:first-child { margin-top: 0; }
+.turn > .text > p:last-child { margin-bottom: 0; }
+
+.turn {
+  li {
+    margin-left: 1.5rem; 
+    margin-bottom: 0.5rem;
+  }
+
+  pre { 
+    background-color: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px; 
+    padding: 1em; 
+    margin: 0.75em 0; 
+    overflow-x: auto;
+    font-family: "Inconsolata", "Courier New", monospace;
+    font-size: 0.9em; 
+    border: 1px solid var(--color-sidebar-border);
+  }
+  code:not(pre code) { 
+    background-color: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 4px;
+    padding: 0.2em 0.4em;
+    font-family: "Inconsolata", "Courier New", monospace;
+    font-size: 0.9em;
+  }
+}
+
+/* Product & Episode Card Common Base (Wild Kratts Theme) */
+.products-container, .episodes-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; /* Increased gap */
+  overflow-y: auto;
+  height: 100%;
+  align-content: flex-start; /* Aligns rows to the top */
+}
+
+.product-card, .episode-card {
+  background-color: var(--color-bg2);
+  color: var(--color-text2);
+  border: 2px solid var(--wk-green-light); /* Themed border */
+  border-radius: 16px; /* More rounded */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  /* Removed transform from here, will be handled by specific hover if needed */
+  transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Important for image border radius */
+}
+
+.product-card:hover, .episode-card:hover {
+  /* transform: translateY(-6px) scale(1.02); More pronounced hover */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12); /* Adjusted hover shadow */
+  border-color: var(--wk-orange-accent);
+}
+
+
+/* Product Card Specifics */
+.product-card {
+  padding: 0; /* Padding handled by inner elements */
+  flex-basis: calc(33.333% - (2 * 24px / 3)); 
+  min-width: 280px; 
+}
+
+.product-image {
+  width: 100%;
+  height: 200px; /* Standardized height */
+  object-fit: contain; 
+  background-color: light-dark(#fff, var(--wk-grey-dark)); 
+  margin-bottom: 0;
+}
+
+.product-card .product-content-wrapper { 
+    padding: 20px; /* Slightly more padding for text from border */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+
+.product-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px; 
+  font-size: 1.25em; 
+  color: var(--color-text); 
+  font-weight: 700; 
+}
+
+.product-description {
+  font-size: 0.9em; 
+  line-height: 1.5;
+  margin-bottom: 12px;
+  flex-grow: 1; 
+  position: relative; 
+  overflow: hidden;
+}
+.product-description p { margin-bottom: 0.5em; }
+.product-description p:last-child { margin-bottom: 0; }
+
+
+.product-categories {
+  font-size: 0.8em;
+  color: var(--color-text3);
+  margin-bottom: 12px; 
+  font-style: italic; 
+}
+.product-categories strong { color: var(--color-text2); font-weight: 600; }
+
+.product-links-container {
+  margin-top: auto; 
+  display: flex;
+  flex-wrap: wrap; /* Allow links to wrap */
+  gap: 8px; /* Space between links */
+  padding-top: 10px;
+  border-top: 1px solid var(--color-sidebar-border); /* Subtle separator */
+}
+
+.product-card a.retailer-link,
+.product-card a.product-link {
+  color: var(--color-accent-text); 
+  background-color: var(--wk-blue-dark); /* Use a theme color */
+  text-decoration: none;
+  font-weight: 600; 
+  padding: 8px 12px; /* Smaller buttons */
+  border-radius: 6px; /* Slightly less rounded */
+  transition: background-color 0.2s, transform 0.1s;
+  font-size: 0.85em; /* Smaller font for links */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  flex-grow: 1; /* Allow links to share space if few */
+  min-width: calc(50% - 4px); /* Try to fit two per row, adjust as needed */
+}
+
+.product-card a.retailer-link:hover,
+.product-card a.product-link:hover {
+  background-color: var(--wk-blue-light); 
+  transform: scale(1.03);
+}
+
+/* Alternate colors for product links for variety if desired */
+.product-card a.retailer-link:nth-child(2n),
+.product-card a.product-link:nth-child(2n) {
+  background-color: var(--wk-green-dark);
+}
+.product-card a.retailer-link:nth-child(2n):hover,
+.product-card a.product-link:nth-child(2n):hover {
+  background-color: var(--wk-green-light);
+}
+
+
+/* Episode Card Specifics */
+.episode-card {
+  flex-basis: calc(50% - 12px); 
+  min-width: 320px; 
+  border-color: var(--wk-blue-light); /* Different border for episodes */
+}
+
+.episode-image {
+  width: 100%;
+  height: 200px; /* Standardized height */
+  object-fit: cover; 
+}
+
+.episode-content {
+  padding: 22px; /* Increased padding for better spacing from border */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; 
+}
+
+.episode-title {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.4em; /* Larger episode title */
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.episode-metadata {
+  font-size: 0.9em; /* Larger metadata */
+  color: var(--color-text3);
+  margin-bottom: 15px; /* More space */
+  font-weight: 600;
+}
+
+.episode-summary {
+  font-size: 0.95em;
+  line-height: 1.65; /* Better line height */
+  margin-bottom: 18px; /* More space */
+  position: relative; 
+  overflow: hidden;
+}
+
+.episode-details-section {
+  margin-bottom: 18px;
+}
+
+.episode-details-section h4 {
+  font-size: 1.1em; /* Larger section headers */
+  color: var(--color-text);
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--wk-orange-accent); /* Themed separator */
+  padding-bottom: 6px;
+  font-weight: 700;
+}
+
+.episode-tags {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Increased gap */
+}
+
+.episode-tags li {
+  background-color: var(--wk-yellow-accent);
+  color: var(--wk-text-dark); /* Ensure contrast on yellow */
+  padding: 6px 12px; /* Larger tags */
+  border-radius: 18px; 
+  font-size: 0.85em;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.episode-list { 
+  list-style: none; /* Using custom markers or none */
+  padding-left: 0;
+  margin: 0;
+  font-size: 0.95em;
+}
+.episode-list li {
+  margin-bottom: 6px;
+  padding-left: 20px; /* Space for custom marker if added */
+  position: relative;
+}
+.episode-list li::before { /* Paw print or creature power disc like marker */
+    content: '🐾'; /* Example, could be SVG */
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--wk-green-dark);
+    font-size: 0.9em;
+}
+
+
+.episode-streaming-links {
+  margin-top: auto; 
+  padding-top: 15px; 
+  border-top: 2px solid var(--wk-orange-accent); 
+}
+.episode-streaming-links h4 {
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+.streaming-link {
+  display: inline-block;
+  background-color: var(--wk-green-dark); /* Themed streaming link */
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: 600;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  transition: background-color 0.2s, transform 0.1s;
+  text-transform: uppercase;
+}
+
+.streaming-link:hover {
+  background-color: var(--wk-green-light);
+  text-decoration: none;
+  transform: scale(1.03);
+}
+
+.no-content-message {
+  padding: 40px; /* More padding */
+  text-align: center;
+  width: 100%;
+  color: var(--color-text2);
+  font-size: 1.2em; /* Larger message */
+  font-weight: 600;
+}
+.no-content-message p {
+    line-height: 1.7;
+}
+
+.read-more-button {
+  background: none;
+  border: none;
+  color: var(--wk-orange-accent); /* Use a theme accent color */
+  cursor: pointer;
+  padding: 4px 0; /* Minimal padding */
+  margin-top: 8px; /* Space above the button */
+  font-weight: 600;
+  font-size: 0.85em;
+  text-decoration: underline;
+  display: inline-block; /* Or block if you want it on its own line */
+}
+.read-more-button:hover {
+  color: var(--wk-yellow-accent); /* Hover color */
+}
+
+.chat-toggle-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: var(--wk-orange-accent);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1001; /* Above chat panel */
+  transition: background-color 0.2s, transform 0.2s;
+}
+.chat-toggle-button:hover {
+  background-color: var(--wk-yellow-accent);
+  transform: scale(1.1);
+}
+.chat-toggle-button svg {
+  width: 28px;
+  height: 28px;
+}
+
+@media only screen and (max-width : 1200px) {
+  .product-card {
+    flex-basis: calc(50% - (24px / 2)); 
+  }
+  .episode-card {
+    flex-basis: calc(50% - 12px); 
+  }
+}
+
+@media only screen and (max-width : 900px) {
+  .chat-panel-hover {
+    /* On smaller screens, chat panel could be wider or handled differently */
+    /* width: 300px;  Adjust if needed */
+  }
+  /* Adjust main-container if chat panel overlaps or pushes content significantly */
+  .main-container {
+    padding: 15px;
+  }
+  .product-card {
+    flex-basis: calc(50% - (24px / 2)); 
+    min-width: 250px;
+  }
+  .episode-card {
+    flex-basis: 100%; 
+    min-width: unset;
+  }
+}
+
+
+@media only screen and (max-width : 600px) {
+  .chat-panel-hover {
+    width: 100%; /* Full width on very small screens when visible */
+    max-width: 100%;
+    border-left: none;
+  }
+  .main-container {
+    /* Ensure main content is not pushed or overlapped weirdly by full-width chat panel */
+  }
+  .product-card {
+    flex-basis: 100%; 
+  }
+  .chat-toggle-button {
+    bottom: 15px;
+    right: 15px;
+    width: 50px;
+    height: 50px;
+  }
+  .chat-toggle-button svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+
+/**
+ * Code Syntax Highlighting
+ *****************************************************************************/
+
+ pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*!
+  Theme: StackOverflow Dark (Modified for Wild Kratts Dark Mode)
+*/
+.hljs { /* For dark mode, Wild Kratts theme */
+  color: var(--wk-text-light);
+  background: #2a2f37; /* Matches --color-bg2 dark */
+}
+.hljs-subst {
+  color: var(--wk-text-light);
+}
+.hljs-comment {
+  color: #7f8c8d; /* Muted comment color */
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-meta .hljs-keyword,
+.hljs-doctag,
+.hljs-section {
+  color: var(--wk-blue-light); /* Martin's Blue for keywords */
+}
+.hljs-attr {
+  color: var(--wk-blue-light);
+}
+.hljs-attribute {
+  color: var(--wk-green-light); /* Chris's Green for attributes */
+}
+.hljs-name,
+.hljs-type,
+.hljs-number,
+.hljs-selector-id,
+.hljs-quote,
+.hljs-template-tag {
+  color: var(--wk-orange-accent); /* Orange for important literals */
+}
+.hljs-selector-class {
+  color: var(--wk-blue-light);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-symbol,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link,
+.hljs-selector-attr {
+  color: var(--wk-yellow-accent); /* Yellow for strings */
+}
+.hljs-meta,
+.hljs-selector-pseudo {
+  color: var(--wk-blue-light);
+}
+.hljs-built_in,
+.hljs-title,
+.hljs-literal {
+  color: var(--wk-orange-accent);
+}
+.hljs-bullet,
+.hljs-code {
+  color: #bdc3c7; /* Light grey for general code elements */
+}
+.hljs-meta .hljs-string {
+  color: var(--wk-yellow-accent);
+}
+.hljs-deletion {
+  color: #e74c3c; /* Red for deletions */
+}
+.hljs-addition {
+  color: #2ecc71; /* Green for additions */
+}
+.hljs-emphasis {
+  font-style: italic
+}
+.hljs-strong {
+  font-weight: bold
+}
+/* Ensure light mode HLJS is distinguishable if needed, or make it adaptive */
+@media (prefers-color-scheme: light) {
+  .hljs {
+    color: #333; /* Default dark text for light mode */
+    background: #f8f8f8; /* Light background for code blocks */
+  }
+  .hljs-comment { color: #998; }
+  .hljs-keyword, .hljs-selector-tag, .hljs-meta .hljs-keyword, .hljs-doctag, .hljs-section { color: #333; font-weight: bold; }
+  .hljs-attr { color: #008080; } /* Teal for attributes */
+  .hljs-attribute { color: #000080; } /* Navy for values */
+  .hljs-name, .hljs-type, .hljs-number, .hljs-selector-id, .hljs-quote, .hljs-template-tag { color: #008080; } /* Teal */
+  .hljs-selector-class { color: #008080; font-weight: bold; }
+  .hljs-string, .hljs-regexp, .hljs-symbol, .hljs-variable, .hljs-template-variable, .hljs-link, .hljs-selector-attr { color: #d14; } /* Crimson for strings */
+  .hljs-meta, .hljs-selector-pseudo { color: #999; font-weight: bold; }
+  .hljs-built_in, .hljs-title, .hljs-literal { color: #008080; }
+  .hljs-bullet, .hljs-code { color: #666; }
+  .hljs-meta .hljs-string { color: #d14; }
+  .hljs-deletion { color: #a00; background-color: #fdd; }
+  .hljs-addition { color: #080; background-color: #dfd; }
+}
+
+/* Wrapper for product card content to apply padding */
+.product-card .product-content-wrapper {
+    padding: 20px; /* Increased padding for product card content for better spacing */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Ensure product image is not covered by border radius of card if card has padding: 0 */
+.product-card .product-image {
+    border-radius: 14px 14px 0 0; /* Match parent card's top radius */
+}
+
+.episode-card .episode-summary, .product-card .product-description {
+    position: relative; /* Needed if we want to absolutely position the button within */
+    overflow: hidden; /* Important for text-overflow if we don't use JS substring */
+}

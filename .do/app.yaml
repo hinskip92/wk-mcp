@@ -1,0 +1,43 @@
+# DigitalOcean App Platform Configuration
+# https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+
+name: wild-kratts-mcp-server
+region: nyc
+
+services:
+- name: api
+  source_dir: /
+  github:
+    repo: yourusername/your-repo
+    branch: main
+    deploy_on_push: true
+  
+  run_command: python server.py
+  
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  
+  envs:
+  - key: PYTHON_VERSION
+    value: "3.12.4"
+  - key: ENVIRONMENT
+    value: production
+  - key: PYTHONUNBUFFERED
+    value: "1"
+  
+  health_check:
+    http_path: /health
+    initial_delay_seconds: 10
+    period_seconds: 30
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
+
+# Optional: Add managed database
+# databases:
+# - name: wild-kratts-db
+#   engine: PG
+#   num_nodes: 1
+#   size: db-s-1vcpu-1gb
+#   version: "15"

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(pip --version)",
+      "Bash(pyenv global:*)",
+      "Bash(pyenv local:*)"
+    ],
+    "deny": []
+  }
+}
