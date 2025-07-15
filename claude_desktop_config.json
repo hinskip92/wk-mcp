@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "wild-kratts-server": {
+      "command": "python",
+      "args": ["mcp_proxy.py"],
+      "cwd": "C:\\Users\\Henry\\Documents\\GitHub\\copy-of-mcp-maps-basic"
+    }
+  }
+}

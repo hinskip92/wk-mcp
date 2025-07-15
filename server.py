@@ -159,6 +159,165 @@ async def test_endpoint():
     """Simple test endpoint"""
     return {"test": "success", "timestamp": "2024-07-15"}
 
+@app.post("/mcp")
+async def handle_mcp_request(request: Request):
+    """Handle MCP protocol requests via HTTP"""
+    try:
+        body = await request.json()
+        
+        # Extract method and params from MCP request
+        method = body.get("method")
+        params = body.get("params", {})
+        request_id = body.get("id")
+        
+        if method == "initialize":
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {}
+                    },
+                    "serverInfo": {
+                        "name": "wild-kratts-mcp-server",
+                        "version": "1.0.0"
+                    }
+                }
+            }
+        
+        elif method == "tools/list":
+            # Return list of available tools
+            tools = [
+                {
+                    "name": "get_wild_kratts_products",
+                    "description": "Search and fetch Wild Kratts products with filtering options",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "searchTerm": {"type": "string", "description": "Search term to find products"},
+                            "category": {"type": "string", "description": "Category filter"},
+                            "page": {"type": "integer", "description": "Page number", "default": 1}
+                        }
+                    }
+                },
+                {
+                    "name": "get_wild_kratts_episodes",
+                    "description": "Fetch Wild Kratts episodes with season and limit options",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "seasonNumber": {"type": "integer", "description": "Season number to filter episodes"},
+                            "limit": {"type": "integer", "description": "Maximum number of episodes to return", "default": 10}
+                        }
+                    }
+                },
+                {
+                    "name": "view_location_google_maps",
+                    "description": "View a specific geographical location (placeholder)",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Location to view"}
+                        },
+                        "required": ["query"]
+                    }
+                }
+            ]
+            
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": tools}
+            }
+        
+        elif method == "tools/call":
+            # Handle tool call
+            tool_name = params.get("name")
+            arguments = params.get("arguments", {})
+            
+            if tool_name == "get_wild_kratts_products":
+                result = await api.get_products(
+                    arguments.get("searchTerm"),
+                    arguments.get("category"), 
+                    arguments.get("page", 1)
+                )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": json.dumps(result, indent=2)
+                            }
+                        ]
+                    }
+                }
+            
+            elif tool_name == "get_wild_kratts_episodes":
+                result = await api.get_episodes(
+                    arguments.get("seasonNumber"),
+                    arguments.get("limit", 10)
+                )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "content": [
+                            {
+                                "type": "text", 
+                                "text": json.dumps(result, indent=2)
+                            }
+                        ]
+                    }
+                }
+            
+            elif tool_name == "view_location_google_maps":
+                query = arguments.get("query", "")
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": f"Location information for: {query} (placeholder functionality)"
+                            }
+                        ]
+                    }
+                }
+            
+            else:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32601,
+                        "message": f"Unknown tool: {tool_name}"
+                    }
+                }
+        
+        else:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {
+                    "code": -32601,
+                    "message": f"Unknown method: {method}"
+                }
+            }
+        
+    except Exception as e:
+        return {
+            "jsonrpc": "2.0",
+            "id": body.get("id") if "body" in locals() else None,
+            "error": {
+                "code": -32603,
+                "message": str(e)
+            }
+        }
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
