@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "wild-kratts-server": {
+      "command": "node",
+      "args": [
+        "-e",
+        "const https = require('https'); const { stdin, stdout } = process; stdin.on('data', async (data) => { try { const request = JSON.parse(data.toString()); const postData = JSON.stringify(request); const options = { hostname: 'web-production-347ab.up.railway.app', port: 443, path: '/mcp', method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) } }; const req = https.request(options, (res) => { let responseData = ''; res.on('data', (chunk) => responseData += chunk); res.on('end', () => { try { const response = JSON.parse(responseData); stdout.write(JSON.stringify(response) + '\\n'); } catch (e) { stdout.write(JSON.stringify({jsonrpc: '2.0', id: request.id, error: {code: -32603, message: 'Invalid response'}}) + '\\n'); } }); }); req.on('error', (err) => { stdout.write(JSON.stringify({jsonrpc: '2.0', id: request.id, error: {code: -32603, message: err.message}}) + '\\n'); }); req.write(postData); req.end(); } catch (err) { stdout.write(JSON.stringify({jsonrpc: '2.0', id: null, error: {code: -32700, message: 'Parse error'}}) + '\\n'); } });"
+      ]
+    }
+  }
+}

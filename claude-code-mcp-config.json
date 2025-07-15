@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "wild-kratts-server": {
+      "command": "python",
+      "args": [
+        "-c",
+        "import sys, json, urllib.request, urllib.error; [print(json.dumps(json.loads(urllib.request.urlopen(urllib.request.Request('https://web-production-347ab.up.railway.app/mcp', data=json.dumps(json.loads(line.strip())).encode(), headers={'Content-Type': 'application/json'})).read().decode())), flush=True) for line in sys.stdin if line.strip()]"
+      ]
+    }
+  }
+}
